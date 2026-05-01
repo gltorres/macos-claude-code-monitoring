@@ -1,6 +1,6 @@
 name: ClaudeMon
 options:
-  bundleIdPrefix: com.alejtr
+  bundleIdPrefix: app.claudemon
   deploymentTarget:
     macOS: "14.0"
   createIntermediateGroups: true
@@ -23,7 +23,7 @@ targets:
           - "**/.DS_Store"
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: com.alejtr.ClaudeMon
+        PRODUCT_BUNDLE_IDENTIFIER: app.claudemon.ClaudeMon
         PRODUCT_NAME: ClaudeMon
         INFOPLIST_KEY_LSUIElement: YES
         INFOPLIST_KEY_NSHumanReadableCopyright: ""
@@ -46,7 +46,7 @@ targets:
       - target: ClaudeMon
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: com.alejtr.ClaudeMonTests
+        PRODUCT_BUNDLE_IDENTIFIER: app.claudemon.ClaudeMonTests
         GENERATE_INFOPLIST_FILE: YES
         BUNDLE_LOADER: "$(TEST_HOST)"
         TEST_HOST: "$(BUILT_PRODUCTS_DIR)/ClaudeMon.app/Contents/MacOS/ClaudeMon"

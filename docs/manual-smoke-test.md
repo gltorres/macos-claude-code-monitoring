@@ -1,8 +1,12 @@
 # Manual Smoke Test
 
+> Maintainer-only release checklist. The steps below assume access to the
+> maintainer's signing identity and a real claude.ai account; contributors
+> opening a PR aren't expected to run this — CI covers the unit tests.
+
 Native AppKit menu bar UI cannot be exercised by Playwright. Walk through
 this 8-step checklist before every release. Capture screenshots of states
-3, 5, 7 into `manual-smoke-test/screenshots/` for visual regression review.
+3, 5, 7 into `docs/screenshots/` for visual regression review.
 
 ## Prerequisites
 
@@ -14,7 +18,7 @@ this 8-step checklist before every release. Capture screenshots of states
 1. **Clean Keychain state.** Run:
 
    ```bash
-   security delete-generic-password -s com.alejtr.ClaudeMon \
+   security delete-generic-password -s app.claudemon.ClaudeMon \
        -a claude-ai-session-key 2>/dev/null || true
    ```
 
@@ -43,7 +47,7 @@ this 8-step checklist before every release. Capture screenshots of states
 6. **Sign out.** Click **Settings…** in the footer → click **Clear** in the
    Settings view. Close + reopen the popover. Confirm `SettingsView` reappears
    on next click. Verify
-   `security find-generic-password -s com.alejtr.ClaudeMon -a claude-ai-session-key`
+   `security find-generic-password -s app.claudemon.ClaudeMon -a claude-ai-session-key`
    returns "could not be found".
 
 7. **Bad sessionKey.** Open **Advanced: paste cookie manually**, paste a
@@ -55,7 +59,7 @@ this 8-step checklist before every release. Capture screenshots of states
 
 7b. **Silent refresh.** While the app is running with a working session,
     delete the Keychain value:
-    `security delete-generic-password -s com.alejtr.ClaudeMon -a claude-ai-session-key`.
+    `security delete-generic-password -s app.claudemon.ClaudeMon -a claude-ai-session-key`.
     Click the refresh button in the popover footer. Expected: usage updates
     without showing a banner; Keychain re-populates within ~10 seconds (the
     WebKit cookie jar still holds a valid session).

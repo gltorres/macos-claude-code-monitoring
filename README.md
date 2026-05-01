@@ -1,5 +1,19 @@
 # ClaudeMon
 
+[![CI](https://github.com/OWNER/REPO/actions/workflows/ci.yml/badge.svg)](https://github.com/OWNER/REPO/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![Latest Release](https://img.shields.io/github/v/release/OWNER/REPO)](https://github.com/OWNER/REPO/releases)
+[![macOS 14+](https://img.shields.io/badge/macOS-14.0+-blue.svg)](https://www.apple.com/macos/)
+
+> **Status: experimental (v0.1.0).** Unofficial — not affiliated with, endorsed
+> by, or supported by Anthropic. The app reads an undocumented endpoint via
+> your browser session cookie; Anthropic may change or restrict that endpoint
+> at any time. The "Daily routine runs", "Claude Design weekly", and
+> "Extra usage" buckets are placeholders pending schema verification (see
+> [Schema verification](#schema-verification)). Prefer the
+> [official usage page](https://claude.ai/settings/usage) for anything
+> billing-relevant.
+
 A native macOS menu bar app that mirrors the usage data shown at
 [claude.ai/settings/usage](https://claude.ai/settings/usage) — current 5-hour
 session, weekly all-models, weekly Sonnet-only, Claude Design, daily routine
@@ -8,6 +22,15 @@ runs, and extra-usage spend — driven by your `sessionKey` cookie.
 The app lives next to the system clock, shows a small `bolt` icon with an
 optional `NN%` overlay when the highest tracked bucket is `>= 10%`, and opens
 a Docker-Desktop-style popover with progress bars on click.
+
+<p align="center">
+  <img src="docs/screenshots/Session.png" alt="ClaudeMon popover showing usage bars" width="420">
+</p>
+
+<p align="center">
+  <img src="docs/screenshots/Indicator.png" alt="Menu bar bolt with NN% indicator" height="22">
+  &nbsp; menu-bar indicator with the highest active bucket overlaid.
+</p>
 
 ## Run locally
 
@@ -24,7 +47,7 @@ a Docker-Desktop-style popover with progress bars on click.
 ### 2. Clone and generate the Xcode project
 
 ```bash
-git clone git@github.com:gltorres/macos-claude-code-monitoring.git
+git clone git@github.com:OWNER/REPO.git
 cd macos-claude-code-monitoring
 xcodegen generate
 ```
@@ -65,6 +88,10 @@ Click the bolt icon → **Sign in to Claude**. A small browser window opens
 at `https://claude.ai/login`; sign in as you normally would. The window
 closes itself once your session is captured, and the popover starts showing
 live usage within ~5 seconds.
+
+<p align="center">
+  <img src="docs/screenshots/Settings-signin.png" alt="Settings view with Sign in button and advanced cookie-paste field" width="420">
+</p>
 
 <details>
 <summary>Advanced: paste a cookie manually</summary>
@@ -130,14 +157,14 @@ degrade to "—" rather than crashing the app.
 ## Privacy & security
 
 - Your `sessionKey` is stored only in the macOS Keychain
-  (`com.alejtr.ClaudeMon` / `claude-ai-session-key`, accessibility
+  (`app.claudemon.ClaudeMon` / `claude-ai-session-key`, accessibility
   `kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly`).
 - The app makes one HTTPS GET per minute to `claude.ai/api/organizations`
   and `claude.ai/api/organizations/{uuid}/usage`. No data is sent anywhere
   else.
 - Sandboxed with App Sandbox + `com.apple.security.network.client` only.
 - Verify Keychain presence with
-  `security find-generic-password -s com.alejtr.ClaudeMon`.
+  `security find-generic-password -s app.claudemon.ClaudeMon`.
 
 ## Polling cadence
 
@@ -149,7 +176,8 @@ used by similar open-source projects.
 
 ## Manual smoke test
 
-Before each release, walk through `manual-smoke-test.md`. Native AppKit
+Before each release the maintainer walks through
+[`docs/manual-smoke-test.md`](docs/manual-smoke-test.md). Native AppKit
 popovers cannot be exercised by Playwright; XCUITest is a follow-up.
 
 ## Troubleshooting

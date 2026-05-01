@@ -3,6 +3,13 @@ DerivedData/
 xcuserdata/
 .DS_Store
 .build/
+
+# Regenerated from project.yml by `xcodegen generate` — committing it would
+# create constant merge churn. Run xcodegen after cloning.
 ClaudeMon.xcodeproj/
+
+# Local-only test fixtures captured from a real account (never check in).
 ClaudeMon/Models/_Fixtures/
+
+# Internal task-planner outputs; not part of the public project.
 specs/

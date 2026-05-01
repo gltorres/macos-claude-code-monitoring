@@ -4,7 +4,7 @@ import WebKit
 
 enum CookieExtractor {
     static let cookieName = "sessionKey"
-    private static let log = Logger(subsystem: "com.alejtr.ClaudeMon", category: "CookieExtractor")
+    private static let log = Logger(subsystem: "app.claudemon.ClaudeMon", category: "CookieExtractor")
 
     /// Accept exactly "claude.ai" and any subdomain of claude.ai.
     static func matches(_ cookie: HTTPCookie) -> Bool {

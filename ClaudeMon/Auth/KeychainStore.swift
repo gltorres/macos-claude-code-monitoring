@@ -2,7 +2,7 @@ import Foundation
 import Security
 
 enum KeychainStore {
-    private static let service = "com.alejtr.ClaudeMon"
+    private static let service = "app.claudemon.ClaudeMon"
     private static let account = "claude-ai-session-key"
 
     static func setSessionKey(_ value: String) throws {

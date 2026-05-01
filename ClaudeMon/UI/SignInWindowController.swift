@@ -10,7 +10,7 @@ final class SignInWindowController: NSWindowController, WKNavigationDelegate {
     private let cookieObserver = CookieChangeObserver()
     private var didFinishOnce = false
     private var pollTask: Task<Void, Never>?
-    private static let log = Logger(subsystem: "com.alejtr.ClaudeMon", category: "SignIn")
+    private static let log = Logger(subsystem: "app.claudemon.ClaudeMon", category: "SignIn")
 
     init(onCaptured: @escaping (String) -> Void, onCancelled: @escaping () -> Void) {
         let cfg = WKWebViewConfiguration()
