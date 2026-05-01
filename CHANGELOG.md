@@ -11,13 +11,10 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - `CONTRIBUTING.md`, `CODE_OF_CONDUCT.md`, `SECURITY.md`.
 - `CHANGELOG.md` (this file).
 - `.github/` issue templates and PR template.
-- `.github/workflows/ci.yml` running `xcodebuild test` on every PR.
-- `.github/workflows/release.yml` building a DMG on `v*` tags
-  (notarized when maintainer secrets are present, unsigned otherwise).
 - `docs/ARCHITECTURE.md` describing the polling cycle and auth flow.
 - README disclaimer banner clarifying the project's experimental,
   unaffiliated status.
-- README badges (CI, license, latest release, macOS version).
+- README badges (license, macOS version).
 
 ### Changed
 - Bundle ID prefix updated to `app.claudemon` (neutral, no personal owner).

@@ -1,8 +1,6 @@
 # ClaudeMon
 
-[![CI](https://github.com/gltorres/macos-claude-code-monitoring/actions/workflows/ci.yml/badge.svg)](https://github.com/gltorres/macos-claude-code-monitoring/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![Latest Release](https://img.shields.io/github/v/release/gltorres/macos-claude-code-monitoring)](https://github.com/gltorres/macos-claude-code-monitoring/releases)
 [![macOS 14+](https://img.shields.io/badge/macOS-14.0+-blue.svg)](https://www.apple.com/macos/)
 
 > **Status: experimental (v0.1.0).** Unofficial — not affiliated with, endorsed
