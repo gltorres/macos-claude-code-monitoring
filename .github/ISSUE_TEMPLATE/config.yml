@@ -1,5 +1,5 @@
 blank_issues_enabled: false
 contact_links:
   - name: Security issue
-    url: https://github.com/OWNER/REPO/security/advisories/new
+    url: https://github.com/gltorres/macos-claude-code-monitoring/security/advisories/new
     about: Report a security vulnerability privately. Do not open a public issue.

@@ -55,5 +55,5 @@ Initial scaffold (see git history `25450a7..cc1f9fa`).
 - "Daily routine runs", "Claude Design weekly", and "Extra usage" buckets
   are unverified placeholders pending schema verification.
 
-[Unreleased]: https://github.com/OWNER/REPO/compare/v0.1.0...HEAD
-[0.1.0]: https://github.com/OWNER/REPO/releases/tag/v0.1.0
+[Unreleased]: https://github.com/gltorres/macos-claude-code-monitoring/compare/v0.1.0...HEAD
+[0.1.0]: https://github.com/gltorres/macos-claude-code-monitoring/releases/tag/v0.1.0

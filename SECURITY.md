@@ -31,7 +31,7 @@ claude.ai account. The app's posture:
 
 Please **do not** open a public GitHub issue for security problems. Open a
 private report via the repo's
-[GitHub Security Advisories](https://github.com/OWNER/REPO/security/advisories/new)
+[GitHub Security Advisories](https://github.com/gltorres/macos-claude-code-monitoring/security/advisories/new)
 tab.
 
 Include reproduction steps, the version (`MARKETING_VERSION` from the built
