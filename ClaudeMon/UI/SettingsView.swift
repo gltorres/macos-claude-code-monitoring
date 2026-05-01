@@ -16,20 +16,24 @@ struct SettingsView: View {
             Text("Sign in to ClaudeMon")
                 .font(.headline)
 
-            DisclosureGroup("How do I find my sessionKey?") {
-                Text("""
-                1. Open Chrome / Safari and sign in to claude.ai.
-                2. Press ⌥⌘I to open DevTools.
-                3. Application tab → Storage → Cookies → https://claude.ai.
-                4. Find sessionKey, double-click its Value, copy.
-                5. Paste it below. Starts with sk-ant-sid01-.
-                """)
-                .font(.callout)
-                .foregroundStyle(.secondary)
+            Button {
+                CookieExtractor.presentInteractiveSignIn(
+                    onSuccess: { key in
+                        do {
+                            try KeychainStore.setSessionKey(key)
+                            status = .saved
+                            onSaved()
+                        } catch {
+                            status = .error("Keychain error: \(error)")
+                        }
+                    },
+                    onCancel: { /* no-op; user can retry */ })
+            } label: {
+                Label("Sign in to Claude", systemImage: "bolt.fill")
+                    .frame(maxWidth: .infinity)
             }
-
-            SecureField("sk-ant-sid01-...", text: $pastedKey)
-                .textFieldStyle(.roundedBorder)
+            .controlSize(.large)
+            .keyboardShortcut(.defaultAction)
 
             Toggle("Launch at login", isOn: launchAtLoginBinding)
                 .toggleStyle(.switch)
@@ -41,17 +45,42 @@ struct SettingsView: View {
             }
             .pickerStyle(.menu)
 
+            Divider()
+
             HStack {
-                Button("Save") { save() }
-                    .keyboardShortcut(.defaultAction)
-                    .disabled(pastedKey.trimmingCharacters(in: .whitespaces).isEmpty)
-                Button("Clear", role: .destructive) {
-                    KeychainStore.delete()
-                    pastedKey = ""
-                    status = .idle
-                }
                 Spacer()
-                statusLabel
+                Button("Quit ClaudeMon") { NSApp.terminate(nil) }
+                    .keyboardShortcut("q")
+            }
+
+            DisclosureGroup("Advanced: paste cookie manually") {
+                VStack(alignment: .leading, spacing: 10) {
+                    Text("""
+                    1. Open Chrome / Safari and sign in to claude.ai.
+                    2. Press ⌥⌘I to open DevTools.
+                    3. Application tab → Storage → Cookies → https://claude.ai.
+                    4. Find sessionKey, double-click its Value, copy.
+                    5. Paste it below. Starts with sk-ant-sid01-.
+                    """)
+                    .font(.callout)
+                    .foregroundStyle(.secondary)
+
+                    SecureField("sk-ant-sid01-...", text: $pastedKey)
+                        .textFieldStyle(.roundedBorder)
+
+                    HStack {
+                        Button("Save") { save() }
+                            .disabled(pastedKey.trimmingCharacters(in: .whitespaces).isEmpty)
+                        Button("Clear", role: .destructive) {
+                            KeychainStore.delete()
+                            pastedKey = ""
+                            status = .idle
+                        }
+                        Spacer()
+                        statusLabel
+                    }
+                }
+                .padding(.top, 6)
             }
         }
         .padding(16)

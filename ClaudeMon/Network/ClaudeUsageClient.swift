@@ -14,7 +14,7 @@ actor ClaudeUsageClient {
         var errorDescription: String? {
             switch self {
             case .missingSessionKey: return "No sessionKey saved."
-            case .unauthorized:      return "Session expired — paste a new sessionKey."
+            case .unauthorized:      return "Session expired — sign in again."
             case .noOrganization:    return "No organizations on this account."
             case .http(let s, _):    return "claude.ai returned HTTP \(s)."
             case .decoding(let e):   return "Couldn't parse usage response: \(e)."

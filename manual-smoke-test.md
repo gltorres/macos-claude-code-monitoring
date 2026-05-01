@@ -20,13 +20,15 @@ this 8-step checklist before every release. Capture screenshots of states
 
    Then build & launch the app from Xcode (`Cmd-R`).
 
-2. **Settings appears for new users.** Click the menu bar bolt. Confirm the
-   `SettingsView` (paste field, "How do I find my sessionKey?" disclosure)
-   is shown.
+2. **Sign in flow appears for new users.** Click the menu bar bolt. Confirm
+   the popover shows a **Sign in to Claude** button (not a paste field).
+   The legacy paste field is still reachable behind the **Advanced: paste
+   cookie manually** disclosure.
 
-3. **Successful sign-in.** Paste a known-valid `sessionKey` → click **Save**.
-   Confirm the popover swaps to `UsagePanelView` and the **Current session**
-   row's `fiveHour` bar shows a non-zero percentage within 5 seconds.
+3. **Successful sign-in.** Click **Sign in to Claude**. A 540×700 window
+   opens at https://claude.ai/login. Sign in. Window auto-closes within
+   1 second of reaching the post-login redirect. Popover swaps to
+   `UsagePanelView`; `fiveHour` bar shows non-zero within 5 seconds.
    Capture screenshot.
 
 4. **Numbers match the web.** Compare the four bars (current session, weekly
@@ -44,10 +46,19 @@ this 8-step checklist before every release. Capture screenshots of states
    `security find-generic-password -s com.alejtr.ClaudeMon -a claude-ai-session-key`
    returns "could not be found".
 
-7. **Bad sessionKey.** Paste a known-bad value (e.g. `sk-ant-sid01-deadbeef`).
-   Confirm a yellow error banner appears with text
-   `Session expired — paste a new sessionKey.`
+7. **Bad sessionKey.** Open **Advanced: paste cookie manually**, paste a
+   known-bad value (e.g. `sk-ant-sid01-deadbeef`) → **Save**. Confirm a
+   yellow error banner appears with text
+   `Session expired — sign in again.`
+   The banner shows a **Sign in** button next to **Retry**.
    Capture screenshot.
+
+7b. **Silent refresh.** While the app is running with a working session,
+    delete the Keychain value:
+    `security delete-generic-password -s com.alejtr.ClaudeMon -a claude-ai-session-key`.
+    Click the refresh button in the popover footer. Expected: usage updates
+    without showing a banner; Keychain re-populates within ~10 seconds (the
+    WebKit cookie jar still holds a valid session).
 
 8. **Network outage resilience.** Re-paste the valid key, confirm fresh data,
    then disable Wi-Fi. Wait 60s. Confirm an error banner appears at the top

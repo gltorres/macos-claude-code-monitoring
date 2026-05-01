@@ -59,19 +59,28 @@ open "$(xcodebuild -project ClaudeMon.xcodeproj -scheme ClaudeMon \
     | awk '/ BUILT_PRODUCTS_DIR /{print $3}')/ClaudeMon.app"
 ```
 
-### 4. Configure your `sessionKey`
+### 4. Sign in
 
-The first launch shows an empty Settings view. To populate it:
+Click the bolt icon → **Sign in to Claude**. A small browser window opens
+at `https://claude.ai/login`; sign in as you normally would. The window
+closes itself once your session is captured, and the popover starts showing
+live usage within ~5 seconds.
+
+<details>
+<summary>Advanced: paste a cookie manually</summary>
+
+If you'd rather paste the `sessionKey` cookie yourself (e.g. you're scripting
+the install), open the popover → **Advanced: paste cookie manually**, then
+follow the DevTools steps at <https://claude.ai/settings/usage>:
 
 1. Sign in to [claude.ai](https://claude.ai) in Chrome or Safari.
 2. Open DevTools (`Option-Cmd-I`).
 3. **Application** tab → **Storage** → **Cookies** → `https://claude.ai`.
 4. Find the row named `sessionKey`, double-click its **Value**, copy it
    (it starts with `sk-ant-sid01-`).
-5. Click the menu bar bolt → paste into the Settings field → **Save**.
+5. Paste into the Advanced field → **Save**.
 
-The popover should swap to the usage panel and start showing live numbers
-within ~5 seconds.
+</details>
 
 ### 5. Run the tests
 

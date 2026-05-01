@@ -87,11 +87,22 @@ struct UsagePanelView: View {
 private struct ErrorBanner: View {
     let message: String
     let retry: () -> Void
+    @EnvironmentObject var store: UsageStore
     var body: some View {
         HStack {
             Image(systemName: "exclamationmark.triangle.fill")
             Text(message).font(.caption)
             Spacer()
+            if message.contains("sign in again") {
+                Button("Sign in") {
+                    CookieExtractor.presentInteractiveSignIn(
+                        onSuccess: { key in
+                            try? KeychainStore.setSessionKey(key)
+                            Task { await store.refresh() }
+                        })
+                }
+                .buttonStyle(.borderless)
+            }
             Button("Retry", action: retry).buttonStyle(.borderless)
         }
         .padding(8)
