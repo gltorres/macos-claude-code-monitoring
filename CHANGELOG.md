@@ -16,6 +16,13 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   unaffiliated status.
 - README badges (license, macOS version).
 
+### Fixed
+- Schema drift in the `/usage` response no longer freezes the popover.
+  A malformed or `null` field in any single bucket now degrades that
+  bucket to `—` instead of aborting the entire decode. Console.app gets
+  a `notice`-level log under category `UsageClient` with the raw payload
+  preview to aid future schema reverse-engineering.
+
 ### Changed
 - Bundle ID prefix updated to `app.claudemon` (neutral, no personal owner).
   **Existing users will need to sign in again** — the Keychain entry under

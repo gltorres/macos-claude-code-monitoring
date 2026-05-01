@@ -70,6 +70,16 @@ this 8-step checklist before every release. Capture screenshots of states
    not blanked out). Re-enable Wi-Fi → next 60s tick → banner clears, data
    refreshes.
 
+9. **Schema-drift resilience.** With the app running and showing live data,
+   point Charles/Proxyman/`mitmproxy` at
+   `claude.ai/api/organizations/*/usage` and rewrite the response so
+   `five_hour.utilization` is `null` while `seven_day.utilization` stays a
+   number. Click the refresh button. **Expected:** the "Current session"
+   row shows `—`, the "All models" row updates to the new value, no yellow
+   error banner, "Updated 0s ago" in the footer. In Console.app filtered
+   by `ClaudeMon`, confirm a `notice` log line under category
+   `UsageClient` containing `usage decode failed: …` and a payload preview.
+
 ## Menu bar badge
 
 - With **all** buckets `< 10%`: bare bolt icon, no overlay.

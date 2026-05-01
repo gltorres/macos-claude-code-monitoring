@@ -1,7 +1,9 @@
 import Foundation
+import OSLog
 
 actor ClaudeUsageClient {
     static let shared = ClaudeUsageClient()
+    private static let log = Logger(subsystem: "app.claudemon.ClaudeMon", category: "UsageClient")
     private var cachedOrgUUID: String?
 
     enum ClientError: Error, LocalizedError {
@@ -32,6 +34,9 @@ actor ClaudeUsageClient {
         do {
             return try decoder.decode(UsageSnapshot.self, from: data)
         } catch {
+            let preview = String(data: data.prefix(4096), encoding: .utf8) ?? "<non-utf8>"
+            Self.log.notice("usage decode failed: \(String(describing: error), privacy: .public)")
+            Self.log.notice("usage payload preview: \(preview, privacy: .public)")
             throw ClientError.decoding(underlying: error)
         }
     }

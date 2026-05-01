@@ -18,6 +18,19 @@ struct UsageSnapshot: Decodable, Equatable {
         case sevenDayOmelette  = "seven_day_omelette"
         case extraUsage        = "extra_usage"
     }
+
+    // Lossy decode: a malformed or schema-drifted nested field produces nil
+    // rather than aborting the whole snapshot, so one bad bucket can't freeze
+    // the polling loop. See: docs/manual-smoke-test.md "schema drift" step.
+    init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        fiveHour         = try? c.decodeIfPresent(Bucket.self,     forKey: .fiveHour)
+        sevenDay         = try? c.decodeIfPresent(Bucket.self,     forKey: .sevenDay)
+        sevenDaySonnet   = try? c.decodeIfPresent(Bucket.self,     forKey: .sevenDaySonnet)
+        sevenDayOpus     = try? c.decodeIfPresent(Bucket.self,     forKey: .sevenDayOpus)
+        sevenDayOmelette = try? c.decodeIfPresent(Bucket.self,     forKey: .sevenDayOmelette)
+        extraUsage       = try? c.decodeIfPresent(ExtraUsage.self, forKey: .extraUsage)
+    }
 }
 
 struct Bucket: Decodable, Equatable {

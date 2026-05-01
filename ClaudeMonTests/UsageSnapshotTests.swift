@@ -60,17 +60,57 @@ final class UsageSnapshotTests: XCTestCase {
         XCTAssertNil(snap.extraUsage)
     }
 
-    func testMalformedFixtureThrowsDecodingError() {
-        // five_hour present but missing the required `utilization` field.
+    func testMalformedBucketDegradesToNil() throws {
+        // five_hour present but missing the required `utilization` field —
+        // before the fix this aborted the whole snapshot decode.
         let json = #"""
         {
             "five_hour": { "resets_at": "2026-04-30T18:00:00Z" }
         }
         """#.data(using: .utf8)!
+        let snap = try decoder().decode(UsageSnapshot.self, from: json)
+        XCTAssertNil(snap.fiveHour, "malformed bucket should degrade to nil")
+        XCTAssertNil(snap.sevenDay)
+        XCTAssertNil(snap.extraUsage)
+    }
 
-        XCTAssertThrowsError(try decoder().decode(UsageSnapshot.self, from: json)) { error in
-            XCTAssertTrue(error is DecodingError, "Expected DecodingError, got \(error)")
+    func testOneBucketFailureDoesNotPoisonOthers() throws {
+        // five_hour is malformed; seven_day is fine. Pre-fix: whole decode
+        // throws. Post-fix: seven_day surfaces, five_hour is nil.
+        let json = #"""
+        {
+            "five_hour": { "resets_at": "2026-05-01T18:00:00Z" },
+            "seven_day": { "utilization": 33.3, "resets_at": "2026-05-08T05:00:00Z" }
         }
+        """#.data(using: .utf8)!
+        let snap = try decoder().decode(UsageSnapshot.self, from: json)
+        XCTAssertNil(snap.fiveHour)
+        XCTAssertEqual(snap.sevenDay?.utilization, 33.3)
+    }
+
+    func testNullUtilizationDegradesBucketToNil() throws {
+        let json = #"""
+        {
+            "five_hour": { "utilization": null, "resets_at": "2026-05-01T18:00:00Z" },
+            "seven_day": { "utilization": 12.5, "resets_at": "2026-05-08T05:00:00Z" }
+        }
+        """#.data(using: .utf8)!
+        let snap = try decoder().decode(UsageSnapshot.self, from: json)
+        XCTAssertNil(snap.fiveHour)
+        XCTAssertEqual(snap.sevenDay?.utilization, 12.5)
+    }
+
+    func testMalformedExtraUsageDegradesToNilWithoutBlockingBuckets() throws {
+        // extra_usage is missing `currency` — pre-fix this aborted the parent.
+        let json = #"""
+        {
+            "five_hour":   { "utilization": 5.0,  "resets_at": "2026-05-01T18:00:00Z" },
+            "extra_usage": { "is_enabled": true, "monthly_limit": 100, "used_credits": 50, "utilization": 50 }
+        }
+        """#.data(using: .utf8)!
+        let snap = try decoder().decode(UsageSnapshot.self, from: json)
+        XCTAssertEqual(snap.fiveHour?.utilization, 5.0)
+        XCTAssertNil(snap.extraUsage)
     }
 
     func testEmptyJSONDecodesAllNil() throws {
@@ -80,5 +120,11 @@ final class UsageSnapshotTests: XCTestCase {
         XCTAssertNil(snap.sevenDay)
         XCTAssertNil(snap.sevenDaySonnet)
         XCTAssertNil(snap.extraUsage)
+    }
+
+    func testCompletelyInvalidPayloadStillThrows() {
+        // Top-level array — no keyed container possible.
+        let json = "[]".data(using: .utf8)!
+        XCTAssertThrowsError(try decoder().decode(UsageSnapshot.self, from: json))
     }
 }
