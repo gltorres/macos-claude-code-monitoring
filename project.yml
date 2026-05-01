@@ -1,0 +1,66 @@
+name: ClaudeMon
+options:
+  bundleIdPrefix: com.alejtr
+  deploymentTarget:
+    macOS: "14.0"
+  createIntermediateGroups: true
+  generateEmptyDirectories: true
+settings:
+  base:
+    SWIFT_VERSION: "5.0"
+    MACOSX_DEPLOYMENT_TARGET: "14.0"
+    CODE_SIGN_STYLE: Automatic
+    CODE_SIGN_IDENTITY: "-"
+    DEAD_CODE_STRIPPING: YES
+targets:
+  ClaudeMon:
+    type: application
+    platform: macOS
+    deploymentTarget: "14.0"
+    sources:
+      - path: ClaudeMon
+        excludes:
+          - "**/.DS_Store"
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.alejtr.ClaudeMon
+        PRODUCT_NAME: ClaudeMon
+        INFOPLIST_KEY_LSUIElement: YES
+        INFOPLIST_KEY_NSHumanReadableCopyright: ""
+        INFOPLIST_KEY_CFBundleDisplayName: ClaudeMon
+        GENERATE_INFOPLIST_FILE: YES
+        ENABLE_HARDENED_RUNTIME: YES
+        CODE_SIGN_ENTITLEMENTS: ClaudeMon/ClaudeMon.entitlements
+        MARKETING_VERSION: "0.1.0"
+        CURRENT_PROJECT_VERSION: "1"
+        SWIFT_EMIT_LOC_STRINGS: YES
+        ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS: NO
+        COMBINE_HIDPI_IMAGES: YES
+  ClaudeMonTests:
+    type: bundle.unit-test
+    platform: macOS
+    deploymentTarget: "14.0"
+    sources:
+      - path: ClaudeMonTests
+    dependencies:
+      - target: ClaudeMon
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.alejtr.ClaudeMonTests
+        GENERATE_INFOPLIST_FILE: YES
+        BUNDLE_LOADER: "$(TEST_HOST)"
+        TEST_HOST: "$(BUILT_PRODUCTS_DIR)/ClaudeMon.app/Contents/MacOS/ClaudeMon"
+schemes:
+  ClaudeMon:
+    build:
+      targets:
+        ClaudeMon: all
+        ClaudeMonTests: [test]
+    test:
+      targets:
+        - ClaudeMonTests
+      gatherCoverageData: false
+    run:
+      config: Debug
+    archive:
+      config: Release
