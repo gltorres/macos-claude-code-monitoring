@@ -1,29 +1,49 @@
 # ClaudeMon
 
-A native macOS menu bar app that displays the same usage data shown at
+A native macOS menu bar app that mirrors the usage data shown at
 [claude.ai/settings/usage](https://claude.ai/settings/usage) — current 5-hour
 session, weekly all-models, weekly Sonnet-only, Claude Design, daily routine
 runs, and extra-usage spend — driven by your `sessionKey` cookie.
 
-The app lives next to your system clock, shows a small `bolt` icon with an
+The app lives next to the system clock, shows a small `bolt` icon with an
 optional `NN%` overlay when the highest tracked bucket is `>= 10%`, and opens
 a Docker-Desktop-style popover with progress bars on click.
 
-## Install (build from source)
+## Run locally
 
-Requirements:
+### 1. Prerequisites
 
-- macOS 14.0+
-- Xcode 15+ (or 16, 26)
-- [`xcodegen`](https://github.com/yonaskolb/XcodeGen) (`brew install xcodegen`)
+- macOS 14.0 or newer
+- Xcode 15+ (16 or 26 also work) with the Command Line Tools installed
+- [`xcodegen`](https://github.com/yonaskolb/XcodeGen):
+
+  ```bash
+  brew install xcodegen
+  ```
+
+### 2. Clone and generate the Xcode project
 
 ```bash
+git clone git@github.com:gltorres/macos-claude-code-monitoring.git
+cd macos-claude-code-monitoring
 xcodegen generate
-open ClaudeMon.xcodeproj
-# In Xcode: select the ClaudeMon scheme and press Cmd-R
 ```
 
-Or to build a Debug binary without opening Xcode:
+`xcodegen` reads `project.yml` and produces `ClaudeMon.xcodeproj`. Re-run it
+any time `project.yml` changes.
+
+### 3a. Run from Xcode (recommended for development)
+
+```bash
+open ClaudeMon.xcodeproj
+```
+
+Select the **ClaudeMon** scheme (top-left of the Xcode toolbar) and press
+`Cmd-R`. The bolt icon appears in your menu bar; click it to open the popover.
+
+### 3b. Run from the command line (no Xcode UI)
+
+Build a Debug binary with ad-hoc signing:
 
 ```bash
 xcodebuild -project ClaudeMon.xcodeproj -scheme ClaudeMon \
@@ -31,28 +51,62 @@ xcodebuild -project ClaudeMon.xcodeproj -scheme ClaudeMon \
     CODE_SIGN_IDENTITY=- CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO
 ```
 
-For a notarized release DMG see `scripts/build-release.sh` (requires an Apple
-Developer ID and an `AC_NOTARY` keychain profile created via `xcrun notarytool
-store-credentials`).
+Then launch the produced `.app`:
 
-## How to find your `sessionKey`
+```bash
+open "$(xcodebuild -project ClaudeMon.xcodeproj -scheme ClaudeMon \
+    -configuration Debug -showBuildSettings \
+    | awk '/ BUILT_PRODUCTS_DIR /{print $3}')/ClaudeMon.app"
+```
+
+### 4. Configure your `sessionKey`
+
+The first launch shows an empty Settings view. To populate it:
 
 1. Sign in to [claude.ai](https://claude.ai) in Chrome or Safari.
 2. Open DevTools (`Option-Cmd-I`).
-3. Application tab → Storage → Cookies → `https://claude.ai`.
-4. Find the row named `sessionKey`, double-click its **Value**, copy it.
-5. In ClaudeMon, click the menu bar bolt → paste into the Settings field →
-   click **Save**. The value starts with `sk-ant-sid01-`.
+3. **Application** tab → **Storage** → **Cookies** → `https://claude.ai`.
+4. Find the row named `sessionKey`, double-click its **Value**, copy it
+   (it starts with `sk-ant-sid01-`).
+5. Click the menu bar bolt → paste into the Settings field → **Save**.
 
-## Schema verification (must do before relying on the values)
+The popover should swap to the usage panel and start showing live numbers
+within ~5 seconds.
 
-The fields the app reads from `GET /api/organizations/{uuid}/usage` are
-*placeholders* until verified against the real response. The five-hour and
-seven-day buckets are corroborated by multiple open-source projects, but the
-"Claude Design" weekly bucket, "Daily routine runs", and "Extra usage" object
-are not publicly documented. To verify:
+### 5. Run the tests
 
-1. Open Chrome DevTools → Network tab → filter Fetch/XHR → check **Preserve
+```bash
+xcodebuild -project ClaudeMon.xcodeproj -scheme ClaudeMon \
+    -destination 'platform=macOS' test
+```
+
+## Build a release DMG
+
+For an unsigned local DMG (will trip Gatekeeper on other Macs — recipients
+must right-click → Open or run
+`xattr -dr com.apple.quarantine /Applications/ClaudeMon.app`):
+
+```bash
+xcodebuild -project ClaudeMon.xcodeproj -scheme ClaudeMon \
+    -configuration Release -derivedDataPath .build/dd build
+hdiutil create -volname ClaudeMon -srcfolder \
+    .build/dd/Build/Products/Release/ClaudeMon.app \
+    -ov -format UDZO .build/ClaudeMon.dmg
+```
+
+For a notarized release DMG see `scripts/build-release.sh` (requires an
+Apple Developer ID and an `AC_NOTARY` keychain profile created via
+`xcrun notarytool store-credentials`).
+
+## Schema verification
+
+The fields read from `GET /api/organizations/{uuid}/usage` are *placeholders*
+until verified against the real response. The five-hour and seven-day buckets
+are corroborated by multiple open-source projects, but the "Claude Design"
+weekly bucket, "Daily routine runs", and "Extra usage" object are not publicly
+documented. To verify:
+
+1. Chrome DevTools → **Network** tab → filter Fetch/XHR → check **Preserve
    log**.
 2. Visit `https://claude.ai/settings/usage`.
 3. For every request whose path starts with `/api/`, copy the URL and the
@@ -69,23 +123,38 @@ degrade to "—" rather than crashing the app.
 - Your `sessionKey` is stored only in the macOS Keychain
   (`com.alejtr.ClaudeMon` / `claude-ai-session-key`, accessibility
   `kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly`).
-- The app makes one HTTPS GET per minute to `claude.ai/api/organizations` and
-  `claude.ai/api/organizations/{uuid}/usage`. No data is sent anywhere else.
+- The app makes one HTTPS GET per minute to `claude.ai/api/organizations`
+  and `claude.ai/api/organizations/{uuid}/usage`. No data is sent anywhere
+  else.
 - Sandboxed with App Sandbox + `com.apple.security.network.client` only.
-- Verify presence with `security find-generic-password -s com.alejtr.ClaudeMon`.
+- Verify Keychain presence with
+  `security find-generic-password -s com.alejtr.ClaudeMon`.
 
 ## Polling cadence
 
 The app polls every 60 seconds by default (configurable via the
-`refreshIntervalSeconds` `UserDefaults` key, hard-floored at 30s and capped at
-600s). The lower bound is intentional: claude.ai enforces against automated
-access, and a 60s cadence is well within the read-only safe range used by
-similar open-source projects.
+`refreshIntervalSeconds` `UserDefaults` key, hard-floored at 30s and capped
+at 600s). The lower bound is intentional: claude.ai enforces against
+automated access, and a 60s cadence is well within the read-only safe range
+used by similar open-source projects.
 
 ## Manual smoke test
 
 Before each release, walk through `manual-smoke-test.md`. Native AppKit
 popovers cannot be exercised by Playwright; XCUITest is a follow-up.
+
+## Troubleshooting
+
+- **`xcodegen: command not found`** — install with `brew install xcodegen`.
+- **Bolt icon never appears** — confirm `LSUIElement` is `YES` in the built
+  `Info.plist` (set via `project.yml`); if you ran a stale build, delete
+  `ClaudeMon.xcodeproj` and re-run `xcodegen generate`.
+- **`Session expired` banner immediately after pasting the key** — the
+  cookie is wrong or expired. Re-copy from DevTools (whole value, no quotes,
+  no leading/trailing whitespace) and ensure it starts with `sk-ant-sid01-`.
+- **Numbers stuck at "—"** — open Console.app, filter by `ClaudeMon`, and
+  inspect the latest network log line. Most likely the response schema has
+  drifted; see the *Schema verification* section.
 
 ## License
 
